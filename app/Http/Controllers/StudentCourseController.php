@@ -14,7 +14,7 @@ class StudentCourseController extends Controller
     public function learn(Course $course)
     {
         return view('dashboard.pages.student-course.learn', [
-            'title' => 'Learn '.$course->title,
+            'title' => 'Learn ' . $course->title,
             'course' => $course,
         ]);
     }
@@ -30,7 +30,7 @@ class StudentCourseController extends Controller
     public function form(Course $course, Homework $homework)
     {
         return view('dashboard.pages.student-course.assignment', [
-            'title' => 'Form '.$homework->course->title,
+            'title' => 'Form ' . $homework->course->title,
             'course' => $course,
             'homework' => $homework,
         ]);
@@ -44,7 +44,7 @@ class StudentCourseController extends Controller
         ]);
 
         Assignment::create([
-            'student_id' => Auth::user()->id,
+            'student_id' => Auth::user()->accountable->id,
             'answer' => $request->answer,
             'file' => $request->file('file')->store('assignments', ['disk' => 'public']),
             'status' => 'submitted',
@@ -52,7 +52,7 @@ class StudentCourseController extends Controller
         ]);
 
         Review::create([
-            'student_id' => Auth::user()->id,
+            'student_id' => Auth::user()->accountable->id,
             'course_id' => $homework->course->id,
             'content' => $request->review,
         ]);

@@ -2,23 +2,37 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assignment;
+use App\Models\Review;
 use Illuminate\Support\Facades\Auth;
 
 class StudentHistoryController extends Controller
 {
     public function getReviewHistories()
     {
+        $user = Auth::user()->accountable;
+
         return view('dashboard.pages.review-history.index', [
             'title' => 'Review Histories',
-            'reviews' => Auth::user()->accountable->reviews->load('course'),
+            'reviews' => Review::query()
+                ->where('student_id', $user->id)
+                ->with('course')
+                ->latest()
+                ->get(),
         ]);
     }
 
     public function getAssignmentHistories()
     {
+        $user = Auth::user()->accountable;
+
         return view('dashboard.pages.assignment-history.index', [
             'title' => 'Assignment Histories',
-            'assignments' => Auth::user()->accountable->assignments->load('homework', 'homework.course'),
+            'assignments' => Assignment::query()
+                ->where('student_id', $user->id)
+                ->with('homework.course')
+                ->latest()
+                ->get(),
         ]);
     }
 }
