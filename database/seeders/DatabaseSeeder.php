@@ -61,7 +61,7 @@ class DatabaseSeeder extends Seeder
         Admin::factory(5)->create();
         Course::factory(100)->create();
         Review::factory(100)->create();
-        Homework::factory(50)->create();
-        Assignment::factory(100)->create();
+        Homework::factory(1000)->create();
+        Assignment::factory(2500)->create();
     }
 }

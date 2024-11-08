@@ -19,7 +19,7 @@ class AccountFactory extends Factory
         return [
             'email' => $this->faker->unique()->safeEmail(),
             'password' => 'password',
-            'profile_picture' => 'images/profile-pic/' . $this->faker->file('storage/app/seeder/profile-pic', 'public/storage/images/profile-pic', false),
+            'profile_picture' => 'images/profile-pic/'.$this->faker->file('storage/app/seeder/profile-pic', 'public/storage/images/profile-pic', false),
         ];
     }
 }

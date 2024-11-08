@@ -20,7 +20,7 @@ class CourseFactory extends Factory
             'title' => $this->faker->sentence,
             'description' => $this->faker->paragraph,
             'content' => $this->faker->paragraphs(3, true),
-            'thumbnail' => 'images/courses/' . $this->faker->file('storage/app/seeder/courses', 'public/storage/images/courses', false),
+            'thumbnail' => 'images/courses/'.$this->faker->file('storage/app/seeder/courses', 'public/storage/images/courses', false),
             'teacher_id' => \App\Models\Teacher::inRandomOrder()->first()->id,
             'course_category_id' => \App\Models\CourseCategory::inRandomOrder()->first()->id,
         ];

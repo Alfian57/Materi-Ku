@@ -21,7 +21,7 @@ class AssignmentFactory extends Factory
         return [
             'status' => $status,
             'point' => $status === 'graded' ? $this->faker->numberBetween(0, 100) : null,
-            'file' => 'assignments/' . $this->faker->file('storage/app/seeder/assignments', 'public/storage/assignments', false),
+            'file' => 'assignments/'.$this->faker->file('storage/app/seeder/assignments', 'public/storage/assignments', false),
             'student_id' => \App\Models\Student::inRandomOrder()->first()->id,
             'homework_id' => \App\Models\Homework::inRandomOrder()->first()->id,
         ];

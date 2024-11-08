@@ -13,10 +13,6 @@
     <section class="section">
         <div class="card">
             <div class="card-body">
-                <div class="text-end">
-                    <a href="{{ route('dashboard.course-categories.create') }}" class="btn btn-primary mb-3">Add New</a>
-                </div>
-
                 <table class="table table-striped" id="table1">
                     <thead>
                         <tr>
