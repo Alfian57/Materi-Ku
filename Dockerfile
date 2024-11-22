@@ -1,14 +1,9 @@
-# Use PHP 8.2 with FPM image
+# Base image: PHP 8.2 with FPM
 FROM php:8.2-fpm
 
-# Install Nginx
-RUN apt-get update && apt-get install -y nginx
-
-# Set Working Directory
-WORKDIR /var/www/html
-
-# Install dependencies, including oniguruma for mbstring support
-RUN apt-get update && apt-get install -y \
+# Install system dependencies, including oniguruma for mbstring support
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx \
     curl \
     libpng-dev \
     libjpeg-dev \
@@ -18,44 +13,43 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath gd opcache \
+    && docker-php-ext-install \
+       pdo \
+       pdo_mysql \
+       mbstring \
+       exif \
+       pcntl \
+       bcmath \
+       gd \
+       opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install SQLite3
-RUN apt-get update && apt-get install -y sqlite3 libsqlite3-dev \
-    && docker-php-ext-install pdo_sqlite
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copy Composer files and install dependencies with cache optimization
+# Set Working Directory
+WORKDIR /var/www/html
+
+# Copy application files
 COPY . .
-RUN composer install --optimize-autoloader --no-interaction --prefer-dist
 
-# Create SQLite database file
-RUN touch /var/www/html/database/database.sqlite
+# Install PHP dependencies
+RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
 
-# Create a new directory named 'assignment' and 'images'
-RUN mkdir -p /var/www/html/storage/app/public/assignments
-RUN mkdir -p /var/www/html/storage/app/public/images
+# Prepare Laravel directories and storage symlink
+RUN mkdir -p /var/www/html/storage/app/public/assignments \
+    /var/www/html/storage/app/public/images \
+    && php artisan storage:link \
+    && chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Run Laravel storage link
-RUN php artisan storage:link
-
-# Set permissions for storage, bootstrap/cache, and public directories
-RUN chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public \
-    && chmod 664 /var/www/html/database/database.sqlite
-
-# Remove default Nginx configuration file
-RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-
-# Copy Nginx configuration file
-COPY ./docker/nginx/default /etc/nginx/sites-available/default
-RUN ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+# Remove default Nginx configuration and add custom config
+RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default \
+    && mv /var/www/html/docker/nginx/default.conf /etc/nginx/sites-available/default \
+    && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
 # Expose port 80
 EXPOSE 80
 
-# Start Nginx and PHP-FPM
+# Command to run both PHP-FPM and Nginx
 CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
