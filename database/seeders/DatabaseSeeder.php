@@ -4,10 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Admin;
 use App\Models\Assignment;
-use App\Models\Course;
-use App\Models\CourseCategory;
-use App\Models\Homework;
-use App\Models\Review;
 use App\Models\Student;
 use App\Models\Teacher;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -53,15 +49,20 @@ class DatabaseSeeder extends Seeder
                 File::delete($file);
             }
         }
-        $this->call(AccountSeeder::class);
+        $this->call([
+            AccountSeeder::class,
+            CourseCategorySeeder::class,
+        ]);
 
-        CourseCategory::factory(30)->create();
         Teacher::factory(25)->create();
         Student::factory(100)->create();
         Admin::factory(5)->create();
-        Course::factory(100)->create();
-        Review::factory(100)->create();
-        Homework::factory(1000)->create();
+
+        $this->call([
+            CourseSeeder::class,
+            ReviewSeeder::class,
+        ]);
+
         Assignment::factory(2500)->create();
     }
 }
