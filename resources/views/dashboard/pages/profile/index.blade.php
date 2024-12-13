@@ -16,10 +16,12 @@
                             <td>Email</td>
                             <td>{{ Auth::user()->email }}</td>
                         </tr>
-                        <tr>
-                            <td>Address</td>
-                            <td>{{ Auth::user()->accountable->address }}</td>
-                        </tr>
+                        @if (Auth::user()->accountable_type != 'App\\Models\\Admin')
+                            <tr>
+                                <td>Address</td>
+                                <td>{{ Auth::user()->accountable->address }}</td>
+                            </tr>
+                        @endif
                         @if (Auth::user()->accountable_type == 'App\\Models\\Student')
                             <tr>
                                 <td>Level</td>

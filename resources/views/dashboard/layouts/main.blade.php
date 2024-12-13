@@ -16,7 +16,8 @@
 
             <div class="page-heading d-flex justify-content-between align-items-center">
                 <h3>{{ $title }}</h3>
-                <div class="dropdown">
+                <div class="dropdown d-flex align-items-center gap-3">
+                    <h6 class="mt-2">Level {{ Auth::user()->accountable->level }}</h6>
                     <a class="avatar avatar-lg" href="#" role="button" id="dropdownMenuLink"
                         data-bs-toggle="dropdown" aria-expanded="false">
                         @if (Auth::user()->profile_picture)
