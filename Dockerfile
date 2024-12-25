@@ -39,6 +39,8 @@ RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-di
 # Prepare Laravel directories and storage symlink
 RUN mkdir -p /var/www/html/storage/app/public/assignments \
     /var/www/html/storage/app/public/images \
+    /var/www/html/storage/app/public/images/courses \
+    /var/www/html/storage/app/public/images/profile-pic \
     && php artisan storage:link \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
