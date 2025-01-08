@@ -1,9 +1,10 @@
 # Base image: PHP 8.2 with FPM
 FROM php:8.2-fpm
 
-# Install system dependencies, including oniguruma for mbstring support
+# Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
+    supervisor \
     curl \
     libpng-dev \
     libjpeg-dev \
@@ -24,24 +25,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
        opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Set Working Directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application dependencies and install
+COPY composer.json composer.lock ./
+RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
 COPY . .
 
-# Install PHP dependencies
-RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
-
-# Prepare Laravel directories and storage symlink
-RUN mkdir -p /var/www/html/storage/app/public/assignments \
-    /var/www/html/storage/app/public/images \
-    /var/www/html/storage/app/public/images/courses \
-    /var/www/html/storage/app/public/images/profile-pic \
-    && php artisan storage:link \
+# Install ACL for managing default permissions
+RUN apt-get update && apt-get install -y acl \
+    && setfacl -R -m u:www-data:rwx /var/www/html/storage /var/www/html/bootstrap/cache \
+    && setfacl -dR -m u:www-data:rwx /var/www/html/storage /var/www/html/bootstrap/cache \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
@@ -50,8 +49,15 @@ RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default \
     && mv /var/www/html/docker/nginx/default.conf /etc/nginx/sites-available/default \
     && ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
 
+# Copy Supervisor configuration
+COPY docker/supervisor/supervisord.conf /etc/supervisor/supervisord.conf
+
 # Expose port 80
 EXPOSE 80
 
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s \
+    CMD curl -f http://localhost/health || exit 1
+
 # Command to run both PHP-FPM and Nginx
-CMD ["sh", "-c", "php-fpm & nginx -g 'daemon off;'"]
+CMD ["supervisord", "-n"]
