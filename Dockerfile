@@ -33,9 +33,8 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
 # Copy application dependencies and install
-COPY composer.json composer.lock ./
-RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
 COPY . .
+RUN composer install --optimize-autoloader --no-dev --no-interaction --prefer-dist
 
 # Install ACL for managing default permissions
 RUN apt-get update && apt-get install -y acl \
