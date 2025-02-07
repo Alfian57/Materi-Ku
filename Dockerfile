@@ -43,6 +43,10 @@ RUN apt-get update && apt-get install -y acl \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Prepare Laravel directories and storage symlink
+RUN mkdir -p /var/www/html/storage/app/public/images \
+    && php artisan storage:link
+
 # Remove default Nginx configuration and add custom config
 RUN rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default \
     && mv /var/www/html/docker/nginx/default.conf /etc/nginx/sites-available/default \
