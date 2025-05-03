@@ -17,38 +17,27 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        if (! File::exists(storage_path('/app/public/images/courses'))) {
-            File::makeDirectory(storage_path('/app/public/images/courses'), 0755, true);
+        $path = [
+            storage_path('app/public/images/courses'),
+            storage_path('app/public/images/profile-pic'),
+            storage_path('app/public/assignments'),
+        ];
+
+        foreach ($path as $dir) {
+            if (!File::exists($dir)) {
+                File::makeDirectory($dir, 0755, true);
+            }
+            chmod($dir, 0755);
         }
 
-        if (! File::exists(storage_path('/app/public/images/profile-pic'))) {
-            File::makeDirectory(storage_path('/app/public/images/profile-pic'), 0755, true);
-        }
-
-        if (! File::exists(storage_path('/app/public/assignments'))) {
-            File::makeDirectory(storage_path('/app/public/assignments'), 0755, true);
-        }
-
-        if (File::exists(storage_path('/app/public/images/courses'))) {
-            $asset = storage_path('/app/public/images/courses');
-            foreach (File::files($asset) as $file) {
-                File::delete($file);
+        foreach ($path as $dir) {
+            if (File::exists($dir)) {
+                foreach (File::files($dir) as $file) {
+                    File::delete($file);
+                }
             }
         }
 
-        if (File::exists(storage_path('/app/public/images/profile-pic'))) {
-            $asset = storage_path('/app/public/images/profile-pic');
-            foreach (File::files($asset) as $file) {
-                File::delete($file);
-            }
-        }
-
-        if (File::exists(storage_path('/app/public/assignments'))) {
-            $asset = storage_path('/app/public/assignments');
-            foreach (File::files($asset) as $file) {
-                File::delete($file);
-            }
-        }
         $this->call([
             AccountSeeder::class,
             CourseCategorySeeder::class,
